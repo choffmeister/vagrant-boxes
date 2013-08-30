@@ -1,0 +1,12 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "%s"
+  config.vm.box_url = "%s"
+
+  config.vm.provision :shell, :path => "bootstrap.sh"
+
+  config.vm.provider :virtualbox do |vb|
+    vb.gui = false
+    vb.customize ["modifyvm", :id, "--memory", "1024"]
+    vb.customize ["modifyvm", :id, "--cpus", "2"]
+  end
+end
