@@ -7,6 +7,23 @@ import subprocess
 vagrant_executable = '/usr/bin/vagrant'
 script_path = os.path.realpath(__file__)
 project_path = os.path.dirname(script_path)
+boxes_path = os.path.join(project_path, '.boxes')
+
+def create_directory(path):
+	if not os.path.exists(path):
+ 		os.makedirs(path)
+
+def remove_directory(path):
+	for root, dirs, files in os.walk(path, topdown=False):
+		for name in files:
+			os.remove(os.path.join(root, name))
+		for name in dirs:
+			os.rmdir(os.path.join(root, name))
+
+def get_box_path(box_name):
+	global boxes_path
+
+	return os.path.join(boxes_path, '%s.box' % box_name)
 
 # iterate over directories
 def iterate_directory(path, parent_box_name, callback):
@@ -46,12 +63,14 @@ def generate_box(path, box_name, parent_box_name):
 	subprocess.call([vagrant_executable, 'up'], cwd=path)
 
 	# package vm into a box
-	subprocess.call([vagrant_executable, 'package', '--output', '%s.box' % box_name], cwd=path)
+	subprocess.call([vagrant_executable, 'package', '--output', get_box_path(box_name)], cwd=path)
 
 	# install box
-	subprocess.call([vagrant_executable, 'box', 'add', '-f', box_name, '%s.box' % box_name], cwd=path)
+	subprocess.call([vagrant_executable, 'box', 'add', '-f', box_name, get_box_path(box_name)], cwd=path)
 
 	# destroy vm
 	subprocess.call([vagrant_executable, 'destroy', '-f'], cwd=path)
 
+remove_directory(boxes_path)
+create_directory(boxes_path)
 iterate_directory(project_path, None, generate_box)
