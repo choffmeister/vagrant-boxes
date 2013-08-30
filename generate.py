@@ -51,4 +51,7 @@ def generate_box(path, box_name, parent_box_name):
 	# install box
 	subprocess.call([vagrant_executable, 'box', 'add', '-f', box_name, '%s.box' % box_name], cwd=path)
 
+	# destroy vm
+	subprocess.call([vagrant_executable, 'destroy', '-f'], cwd=path)
+
 iterate_directory(project_path, None, generate_box)
